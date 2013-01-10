@@ -1,4 +1,5 @@
 <?php
+//Lets see if github works
   class User{
       private $uid; // user id
       private $fields; // other record fields 
@@ -26,13 +27,13 @@
           }
           // return if username is valid format
           public static function validateUsername($username){
-              //return preg_match(‘/^[A-Z0-9]{2,20}$/i’, $username);
+              //return preg_match(ï¿½/^[A-Z0-9]{2,20}$/iï¿½, $username);
           }
           // return if email address is valid format
           public static function validateEmailAddr($email){
               return filter_var($email, FILTER_VALIDATE_EMAIL);
           }
-          // return an object populated based on the record’s user id
+          // return an object populated based on the recordï¿½s user id
           public static function getById($user_id){
               $user = new User();
               $query = sprintf('SELECT USERNAME, PASSWORD, EMAIL_ADDR, IS_ACTIVE ' .
@@ -51,11 +52,11 @@
               mysql_free_result($result);
               return $user;
           }
-          // return an object populated based on the record’s username
+          // return an object populated based on the recordï¿½s username
           public static function getByUsername($username){
               $user = new User();
               $query = sprintf('SELECT USER_ID, PASSWORD, EMAIL_ADDR, IS_ACTIVE ' .
-              'FROM %sUSER WHERE USERNAME = “%s”',
+              'FROM %sUSER WHERE USERNAME = ï¿½%sï¿½',
               DB_TBL_PREFIX,
               mysql_real_escape_string($username, $GLOBALS['DB']));
               $result = mysql_query($query, $GLOBALS['DB']);
@@ -73,8 +74,8 @@
           // save the record to the database
           public function save(){
               if ($this-> uid){
-                  $query = sprintf('UPDATE %sUSER SET USERNAME = “%s”, ' .
-                  'PASSWORD = “%s”, EMAIL_ADDR = “%s”, IS_ACTIVE = %d ' .
+                  $query = sprintf('UPDATE %sUSER SET USERNAME = ï¿½%sï¿½, ' .
+                  'PASSWORD = ï¿½%sï¿½, EMAIL_ADDR = ï¿½%sï¿½, IS_ACTIVE = %d ' .
                   'WHERE USER_ID = %d',
                   DB_TBL_PREFIX,
                   mysql_real_escape_string($this-> username, $GLOBALS['DB']),
@@ -85,7 +86,7 @@
                   mysql_query($query, $GLOBALS['DB']);
               }else{
 /*                  $query = sprintf('INSERT INTO %sUSER (USERNAME, PASSWORD, ' .
-                  'EMAIL_ADDR, IS_ACTIVE) VALUES (“%s”, “%s”, “%s”, %d)',
+                  'EMAIL_ADDR, IS_ACTIVE) VALUES (ï¿½%sï¿½, ï¿½%sï¿½, ï¿½%sï¿½, %d)',
                   DB_TBL_PREFIX,
                   mysql_real_escape_string($this-> username, $GLOBALS['DB']),
                   mysql_real_escape_string($this-> password, $GLOBALS['DB']),
@@ -110,15 +111,15 @@
               $this-> save(); // make sure the record is saved
               $token = random_text(5);
               $query = sprintf('INSERT INTO %sPENDING (USER_ID, TOKEN) ' .
-              'VALUES (%d, “%s”)',
+              'VALUES (%d, ï¿½%sï¿½)',
               DB_TBL_PREFIX,
               $this-> uid, $token);
               return (mysql_query($query, $GLOBALS['DB'])) ? $token : false;
           }
-          // clear the user’s pending status and set the record as active
+          // clear the userï¿½s pending status and set the record as active
           public function setActive($token){
               $query = sprintf('SELECT TOKEN FROM %sPENDING WHERE USER_ID = %d ' .
-              'AND TOKEN = “%s”',
+              'AND TOKEN = ï¿½%sï¿½',
               DB_TBL_PREFIX,
               $this-> uid,
               mysql_real_escape_string($token, $GLOBALS['DB']));
@@ -129,7 +130,7 @@
               }else{
                   mysql_free_result($result);
                   $query = sprintf('DELETE FROM %sPENDING WHERE USER_ID = %d ' .
-                  'AND TOKEN = “%s”',
+                  'AND TOKEN = ï¿½%sï¿½',
                   DB_TBL_PREFIX,
                   $this-> uid,
                   mysql_real_escape_string($token, $GLOBALS['DB']));
