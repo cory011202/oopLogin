@@ -1,5 +1,4 @@
 <?php
-//Lets see if github works
   class User{
       private $uid; // user id
       private $fields; // other record fields 
