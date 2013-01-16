@@ -1,5 +1,5 @@
 <?php
-  class User{
+  class user{
       private $uid; // user userId
       private $fields; // other record fields 
       // initialize a User object
@@ -39,7 +39,7 @@
               'FROM %sUSER WHERE userId = %d',
               DB_TBL_PREFIX,
               $user_id);
-              $result = mysql_query($query, $GLOBALS['DB']);
+              $result = mysql_query($query);
               if (mysql_num_rows($result)){
                   $row = mysql_fetch_assoc($result);
                   $user-> username = $row['userName'];
@@ -48,56 +48,46 @@
                   $user-> isActive = $row['isActive'];
                   $user-> uid = $user_id;
               }
-              mysql_free_result($result);
+              //mysql_free_result($result);
               return $user;
           }
           // return an object populated based on the record�s username
           public static function getByUsername($username){
               $user = new User();
-              $query = sprintf('SELECT userId, password, emailAddr, isActive ' .
-              'FROM %sUSER WHERE userName = �%s�',
-              DB_TBL_PREFIX,
-              mysql_real_escape_string($username, $GLOBALS['DB']));
-              $result = mysql_query($query, $GLOBALS['DB']);
-              if (mysql_num_rows($result)){
-                  $row = mysql_fetch_assoc($result);
+              $query = mysql_query('SELECT id, password, emailAddr, isActive
+                                    FROM users WHERE userName = username')
+                                    or die(mysql_error());
+              //$result = mysql_query($query);
+              //echo"what" .  $query;
+              //$numberOfRows = mysql_num_rows($query);
+              //echo $numberOfRows;
+              if (mysql_num_rows($query)){
+                  $row = mysql_fetch_assoc($query);
                   $user-> username = $username;
                   $user-> password = $row['password'];
                   $user-> emailAddr = $row['emailAddr'];
                   $user-> isActive = $row['isActive'];
                   $user-> uid = $row['userId'];
               }
-              mysql_free_result($result);
+              //mysql_free_result($result);
+              print_r($user);
               return $user;
+
           }
           // save the record to the database
           public function save(){
               if ($this-> uid){
-                  $query = sprintf('UPDATE %sUSER SET userName = �%s�, ' .
-                  'password = �%s�, emailAddr = �%s�, isActive = %d ' .
-                  'WHERE userId = %d',
-                  DB_TBL_PREFIX,
-                  mysql_real_escape_string($this-> username, $GLOBALS['DB']),
-                  mysql_real_escape_string($this-> password, $GLOBALS['DB']),
-                  mysql_real_escape_string($this-> emailAddr, $GLOBALS['DB']),
-                  $this-> isActive,
-                  $this-> userId);
-                  mysql_query($query, $GLOBALS['DB']);
+                  $query=mysql_query("UPDATE users SET userName = $this->username, password= $this->password, emailAddr = $this->emailAddr, isActive = 1)
+                                      WHERE id = $this->uid");
+                  mysql_query($query);
               }else{
-/*                  $query = sprintf('INSERT INTO %sUSER (userName, password, ' .
-                  'emailAddr, isActive) VALUES (�%s�, �%s�, �%s�, %d)',
-                  DB_TBL_PREFIX,
-                  mysql_real_escape_string($this-> username, $GLOBALS['DB']),
-                  mysql_real_escape_string($this-> password, $GLOBALS['DB']),
-                  mysql_real_escape_string($this-> emailAddr, $GLOBALS['DB']),
-                  $this-> isActive);*/
                   $query=mysql_query("INSERT INTO users (userName, password,emailAddr, isActive) VALUES ('$this->username',
                    '$this->password', '$this->emailAddr', '$this->isActive')");
                    
 
                   if ($query)
                   {
-                      $this-> uid = mysql_insert_id($GLOBALS['DB']);
+                      $this-> uid = mysql_insert_id();
                       return true;
                   }else{
                       return false;
@@ -109,11 +99,9 @@
               $this-> isActive = false;
               $this-> save(); // make sure the record is saved
               $token = random_text(5);
-              $query = sprintf('INSERT INTO %spending (userId, TOKEN) ' .
-              'VALUES (%d, �%s�)',
-              DB_TBL_PREFIX,
-              $this-> uid, $token);
-              return (mysql_query($query, $GLOBALS['DB'])) ? $token : false;
+              $query=mysql_query("INSERT INTO pending (userId,token,createDate, isActive) VALUES ('$this->uid',
+                   '$token')");
+              return (mysql_query($query)) ? $token : false;
           }
           // clear the user�s pending status and set the record as active
           public function setActive($token){
@@ -121,8 +109,8 @@
               'AND TOKEN = �%s�',
               DB_TBL_PREFIX,
               $this-> uid,
-              mysql_real_escape_string($token, $GLOBALS['DB']));
-              $result = mysql_query($query, $GLOBALS['DB']);
+              mysql_real_escape_string($token, oopLogin));
+              $result = mysql_query($query, oopLogin);
               if (!mysql_num_rows($result)){
                   mysql_free_result($result);
                   return false;
@@ -132,8 +120,8 @@
                   'AND TOKEN = �%s�',
                   DB_TBL_PREFIX,
                   $this-> uid,
-                  mysql_real_escape_string($token, $GLOBALS['DB']));
-                  if (!mysql_query($query, $GLOBALS['DB'])){
+                  mysql_real_escape_string($token, oopLogin));
+                  if (!mysql_query($query, oopLogin)){
                       return false;
                   }else{
                       $this-> isActive = true;
